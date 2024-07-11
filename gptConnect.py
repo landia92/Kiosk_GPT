@@ -1,13 +1,15 @@
 from openai import OpenAI
 
 client = OpenAI(
-    # This is the default and can be omitted
     api_key="GPT API KEY"
 )
 
 # 초기 상활 설정 및 첫 번째 질문 예시
 message = [
-        {"role": "system", "content": "You are a helpful cafe clerk. And your customer is blind and korean."},
+        {"role": "system", "content":
+            "You are a helpful cafe clerk."
+            "And your customer is korean and old or disabled."
+         },
         {"role": "user", "content": "안녕하세요. 아이스 아메리카노 한 잔 주세요"}
 ]
 
