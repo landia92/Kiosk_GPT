@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="GPT API KEY"
+    api_key=""
 )
 
 # 초기 상활 설정 및 첫 번째 질문 예시
