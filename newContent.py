@@ -39,6 +39,7 @@ structured_message = [
                                   "If the customer has already specified the details, do not ask again. "
                                   "Structure the order like this: "
                                   "{type: {type}, temperature: {temperature}, size: {size}, quantity: {quantity}, price: {price}} "
+                                  "Maintain this structure when printing the order details."
                                   
                                   "if order is complete, you must return only the order."
 
@@ -50,7 +51,7 @@ structured_message = [
                                   "repeat the order details and ask for confirmation, including the total price. "
                                   # 최종 주문 키워드
                                   "If the customer confirms the order is correct, "
-                                  "print 'Order Complete' to automatically indicate that the ordering process is finished."
+                                  "print 'Order Complete' and the order details to automatically indicate that the ordering process is finished."
 
      },
     {"role": "assistant", "content": "안녕하세요. 주문을 도와드릴까요?"} #assistant 역할로, 처음 사용자에게 보일 인사 메시지를 설정
