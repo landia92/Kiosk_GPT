@@ -52,7 +52,7 @@ structured_message = [
                                    
                                    # 최종 주문 키워드
                                   "Once the confirmation is received from the customer, "
-                                  "use the phrase 'Order Complete' to automatically indicate that the ordering process is finished."
+                                  "print 'Order Complete' to automatically indicate that the ordering process is finished."
 
      },
     {"role": "assistant", "content": "안녕하세요. 주문을 도와드릴까요?"} #assistant 역할로, 처음 사용자에게 보일 인사 메시지를 설정
@@ -65,7 +65,6 @@ chat_completion = client.chat.completions.create(
 
 print(structured_message[-1]['content']) #리스트의 마지막 메시지인 "안녕하세요 주문을 도와드릴까요?"를 출력
 
-# 주문 하나가 끝나면('Order Complete')or 주문을 취소하면 3초 후 다른 주문을 반복적으로 받을 수 있게 수정
 while True :
     user_chat = input("User: ")
     if user_chat == "exit":
