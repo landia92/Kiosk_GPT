@@ -1,9 +1,19 @@
+import os
 from openai import OpenAI
+from dotenv import load_dotenv
 
+# .env 파일에서 환경 변수를 로드합니다.
+load_dotenv()
+
+# 환경 변수에서 API 키를 가져옵니다.
+api_key = os.getenv('OPENAI_API_KEY')
+
+if not api_key:
+    raise ValueError("OPENAI_API_KEY 환경 변수를 설정해야 합니다.")
 
 class gpt_speech_class:
     def __init__(self):
-        self.client = OpenAI(api_key="")
+        self.client = OpenAI(api_key=api_key)
 
         self.structured_message = [
     {"role": "system", "content": "당신은 카페 직원입니다. " # system 역할로, AI의 행동을 지시->카페 직원
@@ -45,6 +55,7 @@ class gpt_speech_class:
      },
     {"role": "assistant", "content": "안녕하세요. 주문을 도와드릴까요?"} #assistant 역할로, 처음 사용자에게 보일 인사 메시지를 설정
 ]
+        print(self.structured_message[-1]['content'])
 
     def call_gpt(self, input_string: str):
         self.structured_message.append({"role": "user", "content": input_string})
@@ -53,8 +64,11 @@ class gpt_speech_class:
             messages=self.structured_message,
             model="gpt-4o"
         )
-        print(chat_completion.choices[0].message.content)
-        return chat_completion.choices[0].message.content
+        response = chat_completion.choices[0].message.content
+        self.structured_message.append({"role": "assistant", "content": response})
+
+        print(response)
+        return response
 
 import sys
 from google.cloud import speech
@@ -65,7 +79,7 @@ import os
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = ""
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\a0104\PycharmProjects\Kiosk_GPT\gcp-key.json"
 
 class MicrophoneStream(object):
     def __init__(self, rate, chunk):
