@@ -4,6 +4,7 @@ from openai import OpenAI
 class gpt_speech_class:
     def __init__(self):
         self.client = OpenAI(api_key="")
+
         self.structured_message = [{"role": "system", "content": """You are a helpful café clerk. Customers chat, 
             so not all inputs will be orders. If an input is not an order, you must return only [this is not an order] 
             and ignore it. If the input is an order, you should take the order. 
