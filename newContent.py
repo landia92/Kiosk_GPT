@@ -27,6 +27,7 @@ structured_message = [
                                   "politely inform them that you can only assist with cafe-related inquiries. "
 
                                   "You should take the order."
+                                  "First, ask if they would like to dine-in or take-out. "
                                   "There are several menu items for each category in cafe."
                                   "The menu must be included, and an order cannot be placed without a menu item. "
                                   
