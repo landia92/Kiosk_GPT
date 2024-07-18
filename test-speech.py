@@ -105,7 +105,7 @@ class gpt_speech_class:
             messages=self.structured_message,
             model="gpt-4o"
         )
-        self.structured_message.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
+        self.structured_message.append({"role": "assistant", "content": chat_completion.choices[0].message.content}) #대화의 흐름을 잘 추적하고 관리
 
         print(chat_completion.choices[0].message.content)
         return chat_completion.choices[0].message.content
@@ -220,6 +220,12 @@ def listen_print_loop(responses, gpt_speech, stream):
 def main():
     client = speech.SpeechClient()
     gpt_speech = gpt_speech_class()
+
+    # 초기 인사 설정 - 기존 assistant 역할의 메시지 활용
+    initial_greeting = next(msg["content"] for msg in gpt_speech.structured_message if msg["role"] == "assistant")
+    print(initial_greeting)  # 초기 인사 메시지 출력
+    audio_content = gpt_speech.teller.synthesize_speech(initial_greeting)  # 초기 인사 음성 합성
+    gpt_speech.teller.play_audio(audio_content)  # 초기 인사 음성 재생
 
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
