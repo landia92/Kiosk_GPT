@@ -5,6 +5,7 @@ from google.cloud import texttospeech
 import os
 from dotenv import load_dotenv
 import time  # 추가
+import re
 
 # .env 파일에서 환경 변수를 로드합니다.
 load_dotenv()
@@ -18,6 +19,10 @@ if not api_key:
 class gcp_speak:
     def synthesize_speech(self, text):
         client = texttospeech.TextToSpeechClient()
+
+        # 숫자나 글자가 아닌 기호를 제거하는 전처리
+        text = re.sub(r'[^가-힣0-9a-zA-Z\s]', '', text)
+
         input_text = texttospeech.SynthesisInput(text=text)
         voice = texttospeech.VoiceSelectionParams(
             language_code="ko-KR",
