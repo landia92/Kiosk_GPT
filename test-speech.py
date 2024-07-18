@@ -2,7 +2,6 @@ import wave
 import io
 from openai import OpenAI
 from google.cloud import texttospeech
-from google.api_core.client_options import ClientOptions
 import os
 from dotenv import load_dotenv
 import time  # 추가
@@ -106,6 +105,8 @@ class gpt_speech_class:
             messages=self.structured_message,
             model="gpt-4o"
         )
+        self.structured_message.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
+
         print(chat_completion.choices[0].message.content)
         return chat_completion.choices[0].message.content
 
@@ -217,10 +218,7 @@ def listen_print_loop(responses, gpt_speech, stream):
             num_chars_printed = len(transcript)
 
 def main():
-    client_options = ClientOptions(api_endpoint='speech.googleapis.com')
-    client = speech.SpeechClient(client_options=client_options)
-
-
+    client = speech.SpeechClient()
     gpt_speech = gpt_speech_class()
 
     config = speech.RecognitionConfig(
@@ -234,7 +232,7 @@ def main():
     streaming_config = speech.StreamingRecognitionConfig(
         config=config,
         interim_results=True,
-        single_utterance=False  # 기본적으로 연속적인 스트림으로 설정하여 타임아웃을 방지합니다.
+
     )
 
     with MicrophoneStream(RATE, CHUNK) as stream:
