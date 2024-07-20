@@ -84,7 +84,10 @@ class gpt_speech_class:
                                           "고객이 특정 세부 사항을 말하는 것을 잊었다면, 다시 물어보세요. "
                                           "고객이 이미 세부 사항을 지정했다면, 다시 묻지 마세요. "
                                           "주문을 다음과 같이 구조화하세요: "
-                                          "{타입: {type}, 온도: {temperature}, 크기: {size}, 수량: {quantity}, 가격: {price}} "
+                                          "{\"type\": \"타입\", \"temperature\": \"온도\", \"cupSize\": \"크기\", \"quantity\": 수량, \"price\": 가격}, "
+                                          "타입과 크기는 영어로 바꿔서 구조화하고 "
+                                          "온도는 영어로 Hot과 Cold 중에 사용하세요. "
+                                          "수량과 가격은 숫자만 사용하세요."
                                           "주문 내역을 출력할 때는 이 구조를 유지하세요."
 
                                           "주문이 완료되면, 주문만 반환해야 합니다. "
@@ -120,11 +123,13 @@ from google.cloud import speech
 import pyaudio
 from six.moves import queue
 import os
+import requests
+import json
 
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\a0104\PycharmProjects\Kiosk_GPT\gcp-key.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"gcp-key.json"
 
 class MicrophoneStream(object):
     def __init__(self, rate, chunk):
@@ -182,6 +187,25 @@ class MicrophoneStream(object):
         self._audio_stream.start_stream()
 
 
+# Spring에 Get 요청하기
+def sendToSpring(answerJson):
+    url = "http://54.206.114.215:8080/trigger-checkout"
+    for match in answerJson:
+        try:
+            json_obj = json.loads(match)
+            params = {
+                "type": json_obj["type"],
+                "cupSize": json_obj["cupSize"],
+                "quantity": json_obj["quantity"],
+                "price": json_obj["price"]
+            }
+            response = requests.get(url, params=params)
+            print("Parsed JSON:", json_obj)
+            print(response.text)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+
+
 def listen_print_loop(responses, gpt_speech, stream):
     num_chars_printed = 0
     is_waiting = False  # 음성 합성 후 대기 상태를 추적하는 플래그
@@ -211,6 +235,15 @@ def listen_print_loop(responses, gpt_speech, stream):
 
             answer = gpt_speech.call_gpt(transcript + overwrite_chars)
             audio_content = teller.synthesize_speech(answer)
+
+            if 'Complete' in answer:
+                # JSON 패턴 정의
+                json_pattern = re.compile(r'\{.*?\}')
+
+                # 문자열에서 JSON 객체 찾기
+                matches = json_pattern.findall(answer)
+                sendToSpring(matches)
+                print("주문 종료")
 
             ignore_ai_response = True  # AI 음성 합성 중에는 음성 인식을 무시
 
