@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 import time  # 추가
 import re
+import mysql.connector
 
 # .env 파일에서 환경 변수를 로드합니다.
 load_dotenv()
@@ -15,6 +16,27 @@ api_key = os.getenv('OPENAI_API_KEY')
 
 if not api_key:
     raise ValueError("OPENAI_API_KEY 환경 변수를 설정해야 합니다.")
+
+# 데이터베이스 연결 설정
+config = {
+    'user': 'admin',
+    'password': 'xmrtnanswk1',
+    'host': '35.227.189.156',  # Cloud SQL 인스턴스의 외부 IP
+    'database': 'monster'
+}
+
+# 데이터베이스에 연결
+conn = mysql.connector.connect(**config)
+cursor = conn.cursor()
+
+cursor.execute("SELECT name, price FROM menu")
+result = cursor.fetchall()
+categoryText = ""
+# 결과 출력
+for data in result:
+    categoryText = categoryText + data[0] + ", " + str(data[1]) + "\n"
+
+print(categoryText)
 
 class gcp_speak:
     def synthesize_speech(self, text):
@@ -76,6 +98,7 @@ class gpt_speech_class:
                                           "당신은 주문을 받아야 합니다. "
                                           "카페에는 각 카테고리마다 여러 메뉴 항목이 있습니다. "
                                           "메뉴 항목이 포함되어야 하며, 메뉴 항목 없이 주문할 수 없습니다. "
+                                          "메뉴는 다음과 같습니다 " + categoryText + " "
 
             # 주문 취소
                                           "고객은 주문 과정 중 언제든지 주문을 취소할 수 있습니다. "
@@ -244,6 +267,7 @@ def listen_print_loop(responses, gpt_speech, stream):
                 matches = json_pattern.findall(answer)
                 sendToSpring(matches)
                 print("주문 종료")
+                break
 
             ignore_ai_response = True  # AI 음성 합성 중에는 음성 인식을 무시
 
